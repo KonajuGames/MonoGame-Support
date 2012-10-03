@@ -9,7 +9,6 @@ namespace Microsoft.Devices
     public class VibrateController
     {
         #region Statics
-        static Vibrator _vibrator;
         static VibrateController _instance;
         public static VibrateController Default
         {
@@ -18,7 +17,6 @@ namespace Microsoft.Devices
                 if (_instance == null)
                 {
                     _instance = new VibrateController();
-                    _vibrator = (Vibrator)Application.Context.GetSystemService(Context.VibratorService);
                 }
                 return _instance;
             }
@@ -30,12 +28,14 @@ namespace Microsoft.Devices
             if (duration.TotalSeconds > 5.0 || duration.TotalSeconds < 0.0)
                 throw new ArgumentOutOfRangeException("duration", duration, "duration must be between 0 and 5 seconds");
 
-            _vibrator.Vibrate((long)duration.TotalMilliseconds);
+            var vibrator = (Vibrator)Application.Context.GetSystemService(Context.VibratorService);
+            vibrator.Vibrate((long)duration.TotalMilliseconds);
         }
 
         public void Stop()
         {
-            _vibrator.Cancel();
+            var vibrator = (Vibrator)Application.Context.GetSystemService(Context.VibratorService);
+            vibrator.Cancel();
         }
     }
 }
