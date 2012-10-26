@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Devices</RootNamespace>
+    <RootNamespace>Microsoft</RootNamespace>
     <AssemblyName>Microsoft.Devices.Android</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -40,7 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Android\VibrateController.cs" />
+    <Compile Include="Devices\VibrateController.cs" />
+    <Compile Include="Phone\Tasks\MarketplaceContentType.cs" />
+    <Compile Include="Phone\Tasks\MarketplaceDetailTask.cs" />
+    <Compile Include="Phone\Tasks\MarketplaceReviewTask.cs" />
+    <Compile Include="Phone\Tasks\WebBrowserTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
