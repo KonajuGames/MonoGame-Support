@@ -15,14 +15,14 @@ namespace Microsoft.Phone.Tasks
         // Ignored by this implementation
         public MarketplaceContentType ContentType { get; set; }
 
-        public MarketplaceDetailTask()
-        {
-            // Content Identifier defaults to show the current app
-            ContentIdentifier = Application.Context.PackageName;
-        }
-
         public void Show()
         {
+            // Content Identifier defaults to show the current app
+            if (ContentIdentifier == null)
+            {
+                ContentIdentifier = Application.Context.PackageName;
+            }
+
             Intent intent = new Intent(Intent.ActionView);
             intent.SetData(Uri.Parse("market://details?id=" + ContentIdentifier));
             intent.SetFlags(ActivityFlags.NewTask);
