@@ -59,8 +59,7 @@ namespace System.IO.IsolatedStorage
                         {
                             try
                             {
-                                var storageFile = await storageFolder.GetFileAsync(path);
-                                return await storageFile.OpenStreamForWriteAsync();
+                                return await storageFolder.OpenStreamForWriteAsync(path, CreationCollisionOption.ReplaceExisting);
                             }
                             catch (IOException e)
                             {
@@ -75,8 +74,7 @@ namespace System.IO.IsolatedStorage
                         {
                             try
                             {
-                                var storageFile = await storageFolder.GetFileAsync(path);
-                                return await storageFile.OpenStreamForReadAsync();
+                                return await storageFolder.OpenStreamForReadAsync(path);
                             }
                             catch (IOException e)
                             {
@@ -93,8 +91,15 @@ namespace System.IO.IsolatedStorage
             return Task.Run(
                 async () =>
                 {
-                    var folder = await storageFolder.GetFolderAsync(directoryName);
-                    return folder != null;
+                    try
+                    {
+                        var folder = await storageFolder.GetFolderAsync(directoryName);
+                        return folder != null;
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        return false;
+                    }
                 }).Result;
         }
 
@@ -103,9 +108,21 @@ namespace System.IO.IsolatedStorage
             return Task.Run(
                 async () =>
                 {
-                    var file = await storageFolder.GetFileAsync(fileName);
-                    return file != null;
+                    try
+                    {
+                        var file = await storageFolder.GetFileAsync(fileName);
+                        return file != null;
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        return false;
+                    }
                 }).Result;
+        }
+
+        public string[] GetFileNames()
+        {
+            return GetFileNames("*");
         }
 
         public string[] GetFileNames(string path)
@@ -113,14 +130,76 @@ namespace System.IO.IsolatedStorage
             var files = Task.Run(
                 async () =>
                 {
-                    var folder = await storageFolder.GetFolderAsync(path);
-                    return await folder.GetFilesAsync();
+                    string root = string.Empty;
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(path))
+                            root = Path.GetDirectoryName(path);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                    var folder = storageFolder;
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(root))
+                            folder = await storageFolder.GetFolderAsync(root);
+                        return await folder.GetFilesAsync();
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }).Result;
             var result = new string[files.Count];
             int index = 0;
-            foreach (var file in files)
-                result[index++] = file.Name;
+            foreach (var f in files)
+                result[index++] = f.Name;
             return result;
+        }
+
+        public string[] GetDirectoryNames()
+        {
+            return GetDirectoryNames("*");
+        }
+
+        public string[] GetDirectoryNames(string path)
+        {
+            var folders = Task.Run(
+                async () =>
+                {
+                    string root = string.Empty;
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(path))
+                            root = Path.GetDirectoryName(path);
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                    var folder = storageFolder;
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(root))
+                            folder = await storageFolder.GetFolderAsync(root);
+                        return await folder.GetFoldersAsync();
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }).Result;
+            if (folders != null)
+            {
+                var result = new string[folders.Count];
+                int index = 0;
+                foreach (var f in folders)
+                    result[index++] = f.Name;
+                return result;
+            }
+            return null;
         }
 
         public void DeleteDirectory(string path)
